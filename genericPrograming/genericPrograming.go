@@ -86,6 +86,26 @@ func IsSorted[T constraints.Ordered](slice []T) bool {
 	return true
 }
 
+func Merge[T any] (slice1[]T, slice2[]T) []T {
+	var returnSlice []T
+	if (len(slice1) == 0) {
+		return slice2
+	} else if (len(slice2) == 0) {
+		return slice1
+	} else if (len(slice1) < len(slice2)) {
+		for i := 0; i < len(slice1); i++ {
+			returnSlice = append(returnSlice, slice1[i])
+			returnSlice = append(returnSlice, slice2[i])
+		}
+		for i := len(slice1); i < len(slice2)-len(slice1); i++ {
+			returnSlice = append(returnSlice, slice2[i])
+		}
+	} else if (len(slice1) < len(slice2)) {
+		returnSlice = Merge(slice2, slice1)
+	}
+	return returnSlice
+}
+
 
 // Example usage
 func main() {
@@ -175,4 +195,10 @@ func main() {
 
 	fmt.Println("Testing isSorted on nonConsecutiveNumbers: ")
 	fmt.Println(IsSorted(nonConsecutiveNumbers)) // Output: false
+
+	fmt.Println("Testing Merge with evenNumbers and nonConsecutiveNumbers: ")
+	fmt.Println("evenNumbers: ", evenNumbers)
+	fmt.Println("nonConsecutiveNumbers: ", nonConsecutiveNumbers)
+	fmt.Println(Merge(evenNumbers, nonConsecutiveNumbers)) // Output: true
+
 }
