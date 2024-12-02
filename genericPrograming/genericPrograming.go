@@ -5,6 +5,9 @@ import (
 	"strings"
 )
 
+import "golang.org/x/exp/constraints"
+
+
 // AnyOf checks if any element in the slice satisfies the given predicate.
 func AnyOf[T any](slice []T, predicate func(T) bool) bool {
 	for _, item := range slice {
@@ -45,6 +48,7 @@ func Equal[T comparable] (a[]T, b[]T) bool {
 	return true
 }
 
+// Notice: if only chaning an element in the slice, we can keep using slice by value.
 func ReplaceIf[T comparable] (slice[]T, element T, compare func (T) bool) (int, bool){
 	for i := 0; i < len(slice); i++ {
 		if compare(slice[i]) {
@@ -55,7 +59,7 @@ func ReplaceIf[T comparable] (slice[]T, element T, compare func (T) bool) (int, 
 	return -1, false
 }
 
-// TODO: esta no funciona: el slice que devuelve es el original. No borra el elemento.
+// Notice: as here we are modifying the slice itselft (and not only an element), wee need to pass slice by reference.
 func RemoveIf[T comparable] (slice*[]T, compare func (T) bool) (int, bool) {
 	for i := 0; i < len(*slice); i++ {
 		if compare((*slice)[i]) {
@@ -72,9 +76,10 @@ func RemoveIf[T comparable] (slice*[]T, compare func (T) bool) (int, bool) {
 	return -1, false
 }
 
-func IsSorted[T comparable] (slice[]T) bool {
-	for i := 0; i < len(slice)-1; i++ {
-		if slice[i] > slice[i+1] {
+// IsSorted checks if a slice of any ordered type is sorted in ascending order.
+func IsSorted[T constraints.Ordered](slice []T) bool {
+	for i := 1; i < len(slice); i++ {
+		if slice[i-1] > slice[i] {
 			return false
 		}
 	}
@@ -165,4 +170,9 @@ func main() {
 	fmt.Println("Result: ", result, "Index: ", index) // Output: 1, true
 	fmt.Println("evenNumbers: ", evenNumbers)
 
+	fmt.Println("Testing isSorted on evenNumbers: ")
+	fmt.Println(IsSorted(evenNumbers)) // Output: true
+
+	fmt.Println("Testing isSorted on nonConsecutiveNumbers: ")
+	fmt.Println(IsSorted(nonConsecutiveNumbers)) // Output: false
 }
